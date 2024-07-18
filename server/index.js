@@ -17,7 +17,7 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "http://localhost:5173", // Replace with your frontend URL
+    origin: process.env.FRONTEND_URL || "https://feedapp-mern.netlify.app", // Use environment variable for frontend URL
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -26,7 +26,7 @@ const io = new SocketIOServer(server, {
 // Middleware setup
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
 
 // Route setup
 app.use("/api/user", userRouter);
@@ -38,6 +38,7 @@ app.use("/api/comment", commentRouter);
 app.use((error, req, res, next) => {
   const status = error.status || 500;
   const message = error.message || "Something went wrong";
+  console.error("Global error handler:", error); // Log the error
   res.status(status).json({
     status,
     message,
@@ -46,6 +47,8 @@ app.use((error, req, res, next) => {
 
 // Socket.IO setup
 io.on("connection", (socket) => {
+  console.log("Client connected");
+
   socket.on("join", (feed_id) => {
     socket.join(feed_id);
   });
@@ -79,10 +82,12 @@ io.on("connection", (socket) => {
 
 const setup = async () => {
   try {
+    console.log("Connecting to MongoDB...");
     await mongoose.connect(process.env.MONGODB_URI, {
       connectTimeoutMS: 10000,
       socketTimeoutMS: 45000,
     });
+    console.log("Connected to MongoDB");
 
     server.listen(port, () => {
       console.log(`Server started on port ${port}`);

@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .lds-ellipsis,
+  .lds-ellipsis div {
+    box-sizing: border-box;
+  }
+  .lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 30px;
+  }
+  .lds-ellipsis div {
+    position: absolute;
+    top: 50%;
+    border-radius: 50%;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  }
+  .lds-ellipsis div:nth-child(1) {
+    left: 8px;
+    animation: lds-ellipsis1 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(2) {
+    left: 8px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(3) {
+    left: 32px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(4) {
+    left: 56px;
+    animation: lds-ellipsis3 0.6s infinite;
+  }
+  @keyframes lds-ellipsis1 {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes lds-ellipsis3 {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+  @keyframes lds-ellipsis2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(24px, 0);
+    }
+  }
+
+  .custom-gradient {
+    background: radial-gradient(128.88% 128.88% at 103.9% -10.39%, #e84d70 0%, #a337f6 53.09%, #28a7ed 100%);
+  }
+  .custom-gradient-linear {
+    background: linear-gradient(45deg, #e84d70 0%, #a337f6 50%, #28a7ed 100%);
+  }
+  @keyframes gradientBorder {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .animated-border {
+    position: relative;
+  }
+  
+  .animated-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background-size: 200% 200%;
+    z-index: -1;
+    animation: gradientBorder 3s ease infinite;
+    border: 2px solid transparent;
+    border-image: linear-gradient(45deg, #e84d70, #a337f6, #28a7ed);
+    border-image-slice: 1;
+  }
+
+  .apply-transition {
+    @apply transition-all duration-200 ease-in-out
+  }
+  
+}

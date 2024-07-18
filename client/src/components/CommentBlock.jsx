@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeComment, removeCommentReply } from "../context/slice/feedSlice";
 import axios from "axios";
+
 const CommentBlock = ({
   profilePic,
   username,
@@ -15,6 +16,7 @@ const CommentBlock = ({
   parentId,
   user_id,
   isReply,
+  selectCommentToEdit,
 }) => {
   const { feed_id } = useSelector((state) => state.feedbacks.selectedFeedback);
   const user = useSelector((state) => state.user.user);
@@ -27,6 +29,16 @@ const CommentBlock = ({
       email,
       feed_id: _id,
       parent_id: parentId,
+    });
+  };
+
+  const handleClickToUpdate = () => {
+    selectCommentToEdit({
+      username,
+      comment,
+      parentId,
+      comment_id: _id,
+      isReply,
     });
   };
 
@@ -52,7 +64,7 @@ const CommentBlock = ({
   };
 
   return (
-    <div className="py-5 sm:py-6">
+    <div className="scrollbar-thin scrollbar-thumb-purple scrollbar-track-gray grid h-32 py-5 sm:py-6">
       <div className="space-y-4 text-[0.9rem] text-gray-darkest">
         <div className="flex items-center justify-between gap-5 sm:gap-8">
           <div className="size-10 overflow-hidden rounded-full">
@@ -79,12 +91,15 @@ const CommentBlock = ({
                 </div>
 
                 {show && (
-                  <div className="absolute right-0 translate-y-1 rounded-md bg-white px-4 py-2 shadow-md sm:left-0 sm:right-auto">
-                    <p className="cursor-pointer text-[0.8rem] text-blue">
+                  <div className="absolute right-0 flex translate-y-1 gap-4 rounded-md bg-white px-4 py-2 shadow-md sm:left-0 sm:right-auto">
+                    <p
+                      className="cursor-pointer text-[0.85rem] text-blue"
+                      onClick={handleClickToUpdate}
+                    >
                       Edit
                     </p>
                     <p
-                      className="cursor-pointer text-[0.8rem] text-red-500"
+                      className="cursor-pointer text-[0.85rem] text-red-500"
                       onClick={handleDelete}
                     >
                       Delete
@@ -121,6 +136,7 @@ CommentBlock.propTypes = {
   parentId: PropTypes.string,
   user_id: PropTypes.string.isRequired,
   isReply: PropTypes.bool.isRequired,
+  selectCommentToEdit: PropTypes.func.isRequired,
 };
 
 export default CommentBlock;

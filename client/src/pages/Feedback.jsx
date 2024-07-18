@@ -35,8 +35,8 @@ const Feedback = () => {
   };
 
   return (
-    <div className="grid min-h-screen justify-items-center bg-gray py-10 font-jost">
-      <div className="w-[90%] max-w-[50em] space-y-10">
+    <div className="scrollbar-thin scrollbar-thumb-purple scrollbar-track-gray grid min-h-screen justify-items-center overflow-y-scroll bg-gray py-10 font-jost">
+      <div className="scrollbar-thin scrollbar-thumb-purple scrollbar-track-gray grid h-32 w-[90%] max-w-[50em] space-y-10">
         <div className="space-y-7">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

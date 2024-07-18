@@ -37,7 +37,7 @@ const Signin = () => {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-gray py-10 font-jost">
+    <div className="scrollbar-thin scrollbar-thumb-purple scrollbar-track-gray grid h-32 min-h-screen place-items-center bg-gray py-10 font-jost">
       <div className="before:custom-gradient-linear relative w-[80%] max-w-[35em] rounded-lg bg-white p-10 shadow-sm before:absolute before:left-0 before:top-0 before:w-full before:rounded-t-md before:p-[0.4em]">
         <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
           <h1 className="text-[2rem] font-bold text-gray-darkest">Sign In</h1>

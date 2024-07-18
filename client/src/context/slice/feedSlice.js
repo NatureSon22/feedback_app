@@ -8,6 +8,7 @@ const feedSlice = createSlice({
     selectedFeedback: null,
     selectedFeedbackComments: [],
     selectedCommentId: null,
+    selectedCommentToUpdate: null,
   },
   reducers: {
     getFeedbacks: (state, action) => {
@@ -95,7 +96,6 @@ const feedSlice = createSlice({
     },
     selectComment: (state, action) => {
       state.selectedCommentId = action.payload;
-      console.log(state.selectedCommentId);
     },
     addCommentReply: (state, action) => {
       const comment_id = action.payload.comment_id;
@@ -108,6 +108,35 @@ const feedSlice = createSlice({
 
         state.selectedFeedbackComments = state.selectedFeedbackComments.map(
           (comment) => (comment._id === comment_id ? newComment : comment),
+        );
+      }
+    },
+    setSelectCommentToUpdate: (state, action) => {
+      state.selectedCommentToUpdate = action.payload;
+    },
+    updateComment: (state, action) => {
+      const { comment_id, comment, isReply, parentId } = action.payload;
+
+      if (!isReply) {
+        state.selectedFeedbackComments = state.selectedFeedbackComments.map(
+          (feedcomment) =>
+            feedcomment._id === comment_id
+              ? { ...feedcomment, comment }
+              : feedcomment,
+        );
+      } else {
+        const commentToUpdate = state.selectedFeedbackComments.find(
+          (comment) => comment._id === parentId,
+        );
+        if (commentToUpdate) {
+          commentToUpdate.replies = commentToUpdate.replies.map((reply) =>
+            reply._id === comment_id ? { ...reply, comment } : reply,
+          );
+        }
+
+        state.selectedFeedbackComments = state.selectedFeedbackComments.map(
+          (feedcomment) =>
+            feedcomment._id === parentId ? commentToUpdate : feedcomment,
         );
       }
     },
@@ -142,6 +171,7 @@ const feedSlice = createSlice({
       state.selectedFeedback = null;
       state.selectedFeedbackComments = [];
       state.selectedCommentId = null;
+      state.selectedCommentToUpdate = null;
 
       console.log(state.selectedFeedbackComments);
     },
@@ -160,8 +190,10 @@ export const {
   addCommentReply,
   selectComment,
   clearSelectedFeedback,
+  updateComment,
   removeComment,
   removeCommentReply,
+  setSelectCommentToUpdate,
 } = feedSlice.actions;
 
 export default feedSlice.reducer;

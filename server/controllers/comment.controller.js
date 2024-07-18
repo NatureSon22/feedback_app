@@ -97,40 +97,16 @@ const addComment = async (req, res, next) => {
 const updateComment = async (req, res, next) => {
   try {
     const { id } = req.params; // feedback ID
-    const { comment_id, comment, parent_id } = req.body;
+    const { comment } = req.body;
 
-    let updatedComment;
+    const updatedComment = await CommentModel.findByIdAndUpdate(
+      { _id: id },
+      { comment },
+      { new: true }
+    );
 
-    if (parent_id) {
-      // Updating a reply to a comment
-      const parentComment = await CommentModel.findById(parent_id);
-
-      if (!parentComment) {
-        return res.status(404).json({ message: "Parent comment not found" });
-      }
-
-      const replyIndex = parentComment.replies.findIndex(
-        (reply) => reply.toString() === comment_id
-      );
-
-      if (replyIndex === -1) {
-        return res.status(404).json({ message: "Reply not found" });
-      }
-
-      parentComment.replies[replyIndex].comment = comment;
-      await parentComment.save();
-      updatedComment = parentComment.replies[replyIndex];
-    } else {
-      // Updating a top-level comment
-      updatedComment = await CommentModel.findByIdAndUpdate(
-        comment_id,
-        { comment },
-        { new: true }
-      );
-
-      if (!updatedComment) {
-        return res.status(404).json({ message: "Comment not found" });
-      }
+    if (!updatedComment) {
+      return res.status(404).json({ message: "Comment not found" });
     }
 
     res.status(200).json(updatedComment);

@@ -10,6 +10,8 @@ import {
   addSelectedFeedbackComment,
   getSelectedFeedbackComments,
   selectComment,
+  setSelectCommentToUpdate,
+  updateComment,
 } from "../context/slice/feedSlice";
 
 const CommentSection = () => {
@@ -21,19 +23,22 @@ const CommentSection = () => {
   const selectedCommentId = useSelector(
     (state) => state.feedbacks.selectedCommentId,
   );
+  const selectedCommentToUpdate = useSelector(
+    (state) => state.feedbacks.selectedCommentToUpdate,
+  );
   const dispatch = useDispatch();
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [userReply, setUserReply] = useState({});
   const [comment, setComment] = useState("");
   const [addingComment, setAddingComment] = useState(false);
   const [addingReply, setAddingReply] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getComments = async () => {
       try {
         const res = await axios.get(`/api/comment/${feedback.feed_id}`);
-        console.log(res.data);
         dispatch(getSelectedFeedbackComments(res.data));
       } catch (error) {
         console.log(error.message);
@@ -72,10 +77,22 @@ const CommentSection = () => {
   }, []);
 
   const handleReplyChange = (e) => {
+    const isReply = selectedCommentToUpdate?.isReply !== undefined;
     const initialPart = `${userReply.username}, `;
-    const newComment = e.target.value.startsWith(initialPart)
-      ? e.target.value
-      : initialPart + e.target.value.slice(e.target.value.indexOf(",") + 1);
+
+    let newComment;
+
+    if (isReply) {
+      newComment = e.target.value;
+    } else {
+      if (e.target.value.startsWith(initialPart)) {
+        newComment = e.target.value;
+      } else {
+        newComment =
+          initialPart + e.target.value.slice(e.target.value.indexOf(",") + 1);
+      }
+    }
+
     const emptyReply = newComment === initialPart;
 
     setComment(newComment);
@@ -91,6 +108,7 @@ const CommentSection = () => {
     setComment("");
     setShowReplyBox(false);
     handleReplying(feedback.feed_id, selectedCommentId, false);
+    dispatch(setSelectCommentToUpdate(null));
   };
 
   const handleSetUserReply = (data) => {
@@ -98,6 +116,10 @@ const CommentSection = () => {
     setComment(`${data.username}, `);
     setShowReplyBox(true);
     dispatch(selectComment(data.parent_id));
+
+    if (selectedCommentToUpdate) {
+      setIsUpdating(false);
+    }
   };
 
   const handleReply = () => {
@@ -137,6 +159,36 @@ const CommentSection = () => {
     }
   };
 
+  const selectCommentToEdit = async (data) => {
+    const { isReply } = data;
+    setShowReplyBox(true);
+    const initialPart = data.comment.split(", ")[0] || "";
+    setUserReply({ username: isReply ? "" : initialPart });
+    setComment(
+      isReply
+        ? data.comment
+        : data.comment.slice(data.comment.indexOf(", ") + 1),
+    );
+    dispatch(setSelectCommentToUpdate(data));
+    setIsUpdating(true);
+  };
+
+  const handleUpdateComment = async () => {
+    try {
+      console.log(selectedCommentToUpdate);
+      await axios.patch(`/api/comment/${selectedCommentToUpdate.comment_id}`, {
+        ...selectedCommentToUpdate,
+        comment,
+      });
+      setShowReplyBox(false);
+      setComment("");
+      dispatch(updateComment({ ...selectedCommentToUpdate, comment }));
+      setIsUpdating(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="rounded-lg bg-white px-5 pb-7 pt-5 sm:p-8 sm:pt-5 md:px-10">
       <div className="mb-4 divide-y-2 divide-gray">
@@ -153,6 +205,7 @@ const CommentSection = () => {
                   parentId={comment._id}
                   isReply={false}
                   handleSetUserReply={handleSetUserReply}
+                  selectCommentToEdit={selectCommentToEdit}
                 />
 
                 <div className="grid border-none">
@@ -164,6 +217,7 @@ const CommentSection = () => {
                         parentId={comment._id}
                         isReply={true}
                         handleSetUserReply={handleSetUserReply}
+                        selectCommentToEdit={selectCommentToEdit}
                       />
                     ))}
                   </div>
@@ -199,9 +253,9 @@ const CommentSection = () => {
           <div className="ml-auto flex flex-row gap-2 sm:flex-col">
             <button
               className="apply-transition cursor-pointer rounded-lg bg-gray-darker px-5 py-2 text-[0.9rem] font-bold text-white hover:bg-gray-darkest sm:w-full"
-              onClick={handleReply}
+              onClick={isUpdating ? handleUpdateComment : handleReply}
             >
-              Comment
+              {isUpdating ? "Update" : "Comment"}
             </button>
             <button
               className="apply-transition cursor-pointer rounded-lg bg-gray-darker px-5 py-2 text-[0.9rem] font-bold text-white hover:bg-gray-darkest sm:w-full"

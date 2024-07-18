@@ -96,7 +96,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-gray py-10">
+    <div className="scrollbar-thin scrollbar-thumb-purple scrollbar-track-gray grid h-32 min-h-screen place-items-center bg-gray py-10">
       <div className="w-[80%] max-w-[37em] space-y-10">
         <div className="flex items-center gap-3">
           <FontAwesomeIcon icon={faAngleLeft} className="text-blue" />

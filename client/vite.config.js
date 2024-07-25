@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://feedback-app-ml5f.onrender.com",
+        target: "https://feedback-app-08eo.onrender.com",
         changeOrigin: true,
       },
     },
